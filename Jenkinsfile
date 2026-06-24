@@ -10,8 +10,8 @@ pipeline {
 
         stage('Checkout') {
             steps {
-                git branch: 'main'
-                git 'https://github.com/satishbandi201/NodeAI.git'
+                git branch: 'main',
+                    url: 'https://github.com/satishbandi201/NodeAI.git'
             }
         }
 
