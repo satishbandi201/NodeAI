@@ -1,37 +1,52 @@
 pipeline {
 
- agent any
+    agent any
 
- stages {
+    environment {
+        IMAGE = "satishbandi33/nodeai:v1"
+    }
 
-  stage('Checkout') {
-   steps {
-    git 'https://github.com/your-repo.git'
-   }
-  }
+    stages {
 
-  stage('Build') {
-   steps {
-    sh 'docker build -t sample-app .'
-   }
-  }
+        stage('Checkout') {
+            steps {
+                git 'https://github.com/satishbandi201/NodeAI.git'
+            }
+        }
 
-  stage('Push') {
-   steps {
-    sh '''
-    docker tag sample-app satishdevops/sample-app:latest
-    docker push satishdevops/sample-app:latest
-    '''
-   }
-  }
+        stage('Build') {
+            steps {
+                sh 'docker build -t $IMAGE .'
+            }
+        }
 
-  stage('Deploy') {
-   steps {
-    sh '''
-    docker rm -f sample-app || true
-    docker run -d --name sample-app -p 80:3000 satishdevops/sample-app:latest
-    '''
-   }
-  }
- }
+        stage('Push') {
+            steps {
+                withCredentials([
+                    usernamePassword(
+                        credentialsId: 'dockerhub-creds',
+                        usernameVariable: 'DOCKER_USER',
+                        passwordVariable: 'DOCKER_PASS'
+                    )
+                ]) {
+
+                    sh '''
+                    echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin
+                    docker push $IMAGE
+                    '''
+                }
+            }
+        }
+
+        stage('Deploy') {
+            steps {
+                sh '''
+                docker run -d \
+                  --name nodeai \
+                  -p 80:3000 \
+                  $IMAGE
+                '''
+            }
+        }
+    }
 }
