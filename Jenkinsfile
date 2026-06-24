@@ -20,6 +20,14 @@ pipeline {
                 sh 'docker build -t $IMAGE .'
             }
         }
+        stage('Test') {
+            steps {
+                sh '''
+                npm install
+                npm test
+                '''
+            }
+        }
 
         stage('Push') {
             steps {
