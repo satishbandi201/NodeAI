@@ -50,10 +50,8 @@ pipeline {
         stage('Deploy') {
             steps {
                 sh '''
-                docker run -d \
-                  --name nodeai \
-                  -p 80:3000 \
-                  $IMAGE
+                docker rm -f nodeai || true
+                docker run -d --name nodeai -p 80:3000 $IMAGE
                 '''
             }
         }
